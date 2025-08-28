@@ -1,19 +1,60 @@
 use leptos::prelude::*;
 
+#[derive(Copy, Clone, PartialEq, Default)]
+enum TileStatus {
+    #[default]
+    Neutral,
+    Absent,
+    Misplaced,
+    Correct,
+}
+
 fn main() {
-    leptos::mount::mount_to_body(|| view! {
-        <header>
-            <h1>"Wordle Solver"</h1>
-            <p>"Enter a 5-letter guess, then mark letters with colors, and get suggestions."</p>
-        </header>
+    mount_to_body(App);
+}
+
+#[component]
+fn Tile(#[prop(into)] status: Signal<TileStatus>) -> impl IntoView {
+    view! {
+        <div
+            class="tile"
+            class:neutral=move || status.get() == TileStatus::Neutral
+            class:absent=move || status.get() == TileStatus::Absent
+            class:misplaced=move || status.get() == TileStatus::Misplaced
+            class:correct=move || status.get() == TileStatus::Correct
+        ></div>
+    }
+}
+#[component]
+fn App() -> impl IntoView {
+    let grid_state = RwSignal::new(
+        (0..6)
+            .map(|_| {
+                (0..5)
+                    .map(|_| RwSignal::new(TileStatus::default()))
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>(),
+    );
+    let show_overlay = RwSignal::new(false);
+
+    view! {
         <div class="container">
             <div>
                 <div class="wordle-grid" id="wordleGrid">
-                    { (0..6).map(|_| view! {
-                        <div class="row">
-                            { (0..5).map(|_| view! { <div class="tile"></div> }).collect_view() }
-                        </div>
-                    }).collect_view() }
+                    {move || grid_state.get().into_iter().map(|row| {
+                        view! {
+                            <div class="row">
+                                {row.into_iter().map(|cell| {
+                                    view! {
+                                        <div on:click=move |_| show_overlay.set(true)>
+                                            <Tile status=cell.read_only() />
+                                        </div>
+                                    }
+                                }).collect_view()}
+                            </div>
+                        }
+                    }).collect_view()}
                 </div>
                 <div class="suggestions" id="suggestions">
                     <div class="input-section">
@@ -29,15 +70,22 @@ fn main() {
                     </div>
                 </div>
             </div>
-            <div class="control-panel" id="controlPanel" style="display: none">
-                <h3>"Mark Letters"</h3>
-                <div class="letter-selector" id="letterSelector"></div>
-                <div class="status-buttons">
-                    <button class="status-button gray">"Gray"</button>
-                    <button class="status-button yellow">"Yellow"</button>
-                    <button class="status-button green">"Green"</button>
+            <div
+                class="control-overlay"
+                id="controlOverlay"
+                style:display=move || if show_overlay.get() { "flex" } else { "none" }
+                on:click=move |_| show_overlay.set(false)
+            >
+                <div class="control-panel" id="controlPanel" on:click=|ev| ev.stop_propagation()>
+                    <h3>"Mark Letters"</h3>
+                    <div class="letter-selector" id="letterSelector"></div>
+                    <div class="status-buttons">
+                        <button class="status-button gray">"Gray"</button>
+                        <button class="status-button yellow">"Yellow"</button>
+                        <button class="status-button green">"Green"</button>
+                    </div>
                 </div>
             </div>
         </div>
-    })
+    }
 }

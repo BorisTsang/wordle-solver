@@ -42,9 +42,9 @@ header {
     text-transform: uppercase;
     background-color: transparent;
 }
-.tile.green { background-color: #6aaa64; border-color: #6aaa64; color: #ffffff; }
-.tile.yellow { background-color: #c9b458; border-color: #c9b458; color: #ffffff; }
-.tile.gray { background-color: #787c7e; border-color: #787c7e; color: #ffffff; }
+.tile.correct { background-color: #6aaa64; border-color: #6aaa64; color: #ffffff; }
+.tile.misplaced { background-color: #c9b458; border-color: #c9b458; color: #ffffff; }
+.tile.absent { background-color: #787c7e; border-color: #787c7e; color: #ffffff; }
 
 .suggestions .input-section {
     width: 100%;
@@ -102,13 +102,30 @@ header {
     padding: 5px 10px;
     border-radius: 4px;
 }
+.control-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 .control-panel {
-    width: 200px;
+    width: 300px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 4px;
+    padding: 20px;
+    border-radius: 8px;
     border: 1px solid #d3d6da;
     text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 .control-panel h3 {
     font-size: 1.2rem;
